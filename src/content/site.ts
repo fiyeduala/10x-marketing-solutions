@@ -23,9 +23,9 @@ export const site = {
      * Set to a real value (e.g. 'hello@example.com') to activate the mailto link.
      * While null, the literal placeholder text below is shown instead.
      */
-    email: null as string | null,
+    email: '10xpromotionscompany@gmail.com' as string | null,
     /** Set to a real value (e.g. '+00 000 000 0000') to activate the tel link. */
-    phone: null as string | null,
+    phone: '07048695731' as string | null,
     emailPlaceholder: '[Your email address]',
     phonePlaceholder: '[Your phone number]',
   },

@@ -1,35 +1,39 @@
 .wrap {
   position: relative;
   width: 100%;
-  aspect-ratio: 560 / 600;
+  aspect-ratio: 1;
   perspective: 1400px;
 }
 
-.glow {
+/* Soft window light on the wall behind the sculpture.
+   Masked to an ellipse so no rectangular edge ever shows. */
+.light {
   position: absolute;
-  inset: -12% -18% -6% -8%;
+  inset: -14% -20% -4% -12%;
   background:
-    radial-gradient(closest-side at 62% 44%, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0) 70%),
-    linear-gradient(118deg, transparent 38%, rgba(255, 255, 255, 0.55) 52%, transparent 66%);
+    radial-gradient(closest-side at 58% 46%, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0) 72%),
+    repeating-linear-gradient(
+      122deg,
+      rgba(255, 255, 255, 0) 0 9%,
+      rgba(255, 255, 255, 0.5) 13%,
+      rgba(255, 255, 255, 0) 17% 24%
+    );
+  -webkit-mask-image: radial-gradient(closest-side, #000 45%, transparent);
+  mask-image: radial-gradient(closest-side, #000 45%, transparent);
   pointer-events: none;
 }
 
 .stage {
   position: absolute;
   inset: 0;
-  transform-style: preserve-3d;
   will-change: transform;
 }
 
-.float {
+.img {
+  display: block;
   width: 100%;
   height: 100%;
-}
-
-.svg {
-  width: 100%;
-  height: 100%;
-  overflow: visible;
+  object-fit: contain;
 }
 
 .pause {

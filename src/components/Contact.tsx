@@ -34,7 +34,7 @@ export function Contact() {
               <dt>
                 <Mail size={16} aria-hidden /> Email
               </dt>
-              <dd>{email ? <a href={`mailto:${email}`}>{email}</a> : <span className={styles.placeholder}>{emailPlaceholder}</span>}</dd>
+              <dd>{email ? <a href={`mailto:${email}`}>{email.split('@')[0]}@<wbr />{email.split('@')[1]}</a> : <span className={styles.placeholder}>{emailPlaceholder}</span>}</dd>
             </div>
             <div>
               <dt>

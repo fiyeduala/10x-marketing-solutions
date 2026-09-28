@@ -16,7 +16,7 @@ npm run build      # type check + production build into dist/
 npm run preview    # serve the production build locally
 ```
 
-`dist/` is a static site that can be served from any static host. It has not been deployed.
+`dist/` is a static site that can be served from any static host. It is deployed on Vercel.
 
 ## Project structure
 
@@ -42,17 +42,17 @@ Almost everything you'll want to change is in **`src/content/site.ts`**, with a 
 
 ### Contact details
 
-The Contact section shows the literal placeholders **[Your email address]** and **[Your phone number]**. They are deliberately not links. To go live, set real values:
+The Contact section's email and phone come from `contact` in `src/content/site.ts`:
 
 ```ts
 contact: {
-  email: 'hello@yourdomain.com',
-  phone: '+00 000 000 0000',
+  email: '10xpromotionscompany@gmail.com',
+  phone: '07048695731',
   …
 }
 ```
 
-Once a value is set, it becomes a working `mailto:` or `tel:` link. Don't add a physical address or location. The brief excludes them.
+Each set value is a working `mailto:` or `tel:` link. Setting one back to `null` shows the placeholder text instead. Don't add a physical address or location. The brief excludes them.
 
 ### Projects (Work section)
 
@@ -72,7 +72,9 @@ Don't add client names, results, metrics or testimonials unless they are real an
 
 - **Logo:** replace `src/assets/brand/logo.png` with the official file. Keep the white background, because the logo is placed on a white plate and must not be recoloured or distorted. Height is set in `src/components/Logo.module.css`, and the width follows the image's aspect ratio.
 - **Favicons:** `public/favicon-32.png`, `public/favicon.png` (64px) and `public/apple-touch-icon.png` (180px) are crops of the logo mark on white. Replace them if the logo changes.
-- **Hero sculpture:** `src/components/BrandSculpture.tsx` is decorative SVG art inspired by the mark. It is not the logo. It floats gently, tilts slightly with the pointer on mouse or trackpad devices, and has a pause control. It is static when reduced motion is enabled.
+- **Hero sculpture:** `src/components/BrandSculpture.tsx` shows the supplied render `src/assets/sculpture/sculpture.webp` as-is. It is decorative, not the logo. It floats gently, tilts slightly with the pointer on mouse or trackpad devices, and has a pause control. It is static when reduced motion is enabled.
+- **Capability images:** `src/components/CapabilityDiagram.tsx` shows the supplied renders `src/assets/capability/marketing.webp` and `software.webp`, with both shown under "Both". They tilt slightly with the pointer and have no continuous motion.
+- **Replacing these images:** use square WebP or PNG files with a transparent background, ideally at least 1200px, and keep the same file names. They are never stretched.
 - **Fonts:** Manrope (display) and Inter (body) are bundled locally through `@fontsource-variable`. No external font requests are made.
 
 ## Enquiry panel

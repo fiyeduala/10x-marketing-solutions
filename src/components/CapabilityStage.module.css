@@ -28,8 +28,8 @@
   display: grid;
   gap: 40px;
   align-items: end;
-  padding-bottom: clamp(40px, 5vw, 64px);
-  border-bottom: 1px solid var(--rule-dark);
+  padding-bottom: clamp(32px, 4vw, 48px);
+  border-bottom: 1px solid rgba(57, 178, 172, 0.35);
 }
 
 .index {
@@ -40,11 +40,11 @@
 .title {
   font-size: var(--fs-h2);
   letter-spacing: -0.045em;
-  max-width: 10ch;
+  max-width: 14ch;
 }
 
 .body {
-  margin-top: 24px;
+  margin-top: 20px;
   max-width: 36ch;
   font-size: var(--fs-lead);
   color: var(--on-dark-muted);
@@ -95,7 +95,7 @@
 }
 
 .panel {
-  padding-top: clamp(40px, 5vw, 72px);
+  padding-top: clamp(32px, 4vw, 48px);
   border-radius: 4px;
 }
 
@@ -170,20 +170,32 @@
   position: relative;
 }
 
-.diagram svg {
-  width: 100%;
-  height: auto;
+/* Supplied renders, always square */
+.art {
+  display: flex;
+  justify-content: center;
+  perspective: 1200px;
 }
 
-.caption {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  font-size: 0.6875rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--on-dark-muted);
-  opacity: 0.8;
+.artItem {
+  flex: 0 1 auto;
+  width: min(100%, 440px);
+  will-change: transform;
+}
+
+.art[data-both] .artItem {
+  width: 50%;
+}
+
+.art[data-both] .artItem + .artItem {
+  margin-left: -6%;
+}
+
+.artItem img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
 }
 
 @media (min-width: 900px) {
@@ -194,7 +206,14 @@
     justify-self: end;
   }
   .panelGrid {
-    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-    gap: 56px;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+    gap: 0;
+  }
+  .diagram {
+    padding-left: clamp(24px, 3vw, 48px);
+    border-left: 1px solid rgba(57, 178, 172, 0.35);
+    align-self: stretch;
+    display: grid;
+    align-items: center;
   }
 }
