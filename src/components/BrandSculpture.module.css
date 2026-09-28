@@ -1,0 +1,57 @@
+.wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 560 / 600;
+  perspective: 1400px;
+}
+
+.glow {
+  position: absolute;
+  inset: -12% -18% -6% -8%;
+  background:
+    radial-gradient(closest-side at 62% 44%, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0) 70%),
+    linear-gradient(118deg, transparent 38%, rgba(255, 255, 255, 0.55) 52%, transparent 66%);
+  pointer-events: none;
+}
+
+.stage {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.float {
+  width: 100%;
+  height: 100%;
+}
+
+.svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.pause {
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid var(--rule);
+  background: color-mix(in srgb, var(--white) 85%, transparent);
+  color: var(--muted);
+  opacity: 0.8;
+  transition:
+    opacity var(--t-fast) var(--ease-out),
+    color var(--t-fast) var(--ease-out);
+}
+
+.pause:hover,
+.pause:focus-visible {
+  opacity: 1;
+  color: var(--ink);
+}

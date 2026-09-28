@@ -1,0 +1,120 @@
+.dialog {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  max-width: none;
+  max-height: none;
+  overflow: visible;
+}
+
+.dialog::backdrop {
+  background: rgba(16, 23, 25, 0.55);
+  backdrop-filter: blur(3px);
+  animation: fade 260ms var(--ease-out);
+}
+
+.dialog[data-closing]::backdrop {
+  animation: fadeOut 200ms var(--ease-out) forwards;
+}
+
+.panel {
+  background: var(--paper);
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+/* ---- Centered (project detail) ---- */
+.center {
+  width: min(1120px, calc(100vw - 32px));
+  margin: auto;
+}
+
+.center .panel {
+  max-height: calc(100dvh - 32px);
+  border-radius: var(--radius-l);
+  animation: rise 420ms var(--ease-out);
+}
+
+.center[data-closing] .panel {
+  animation: sink 200ms var(--ease-out) forwards;
+}
+
+/* ---- Side sheet (enquiry) ---- */
+.sheet {
+  width: min(620px, 100vw);
+  height: 100dvh;
+  margin: 0 0 0 auto;
+}
+
+.sheet .panel {
+  height: 100%;
+  animation: slideIn 460ms var(--ease-out);
+  box-shadow: -30px 0 80px -40px rgba(0, 0, 0, 0.5);
+}
+
+.sheet[data-closing] .panel {
+  animation: slideOut 200ms var(--ease-out) forwards;
+}
+
+/* ---- Full-screen menu ---- */
+.menu {
+  width: 100vw;
+  height: 100dvh;
+  margin: 0;
+}
+
+.menu .panel {
+  height: 100%;
+  animation: fade 260ms var(--ease-out);
+}
+
+.menu[data-closing] .panel {
+  animation: fadeOut 200ms var(--ease-out) forwards;
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes fadeOut {
+  to {
+    opacity: 0;
+  }
+}
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.985);
+  }
+}
+@keyframes sink {
+  to {
+    opacity: 0;
+    transform: translateY(12px) scale(0.99);
+  }
+}
+@keyframes slideIn {
+  from {
+    transform: translateX(40px);
+    opacity: 0;
+  }
+}
+@keyframes slideOut {
+  to {
+    transform: translateX(40px);
+    opacity: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .center {
+    width: 100vw;
+    margin: auto 0 0;
+  }
+  .center .panel {
+    max-height: calc(100dvh - 24px);
+    border-radius: var(--radius-l) var(--radius-l) 0 0;
+  }
+}

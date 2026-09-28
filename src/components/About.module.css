@@ -1,0 +1,121 @@
+.about {
+  padding-block: var(--section-y);
+  background: var(--paper-deep);
+  border-top: 1px solid var(--rule);
+}
+
+.top {
+  display: grid;
+  gap: 32px;
+  margin-bottom: clamp(56px, 8vw, 112px);
+}
+
+.index {
+  margin-bottom: 24px;
+}
+
+.title {
+  font-size: var(--fs-h2);
+  letter-spacing: -0.045em;
+}
+
+.soft {
+  color: var(--muted);
+}
+
+.copyCol {
+  position: relative;
+}
+
+.body {
+  font-size: var(--fs-lead);
+  line-height: 1.55;
+  max-width: 34ch;
+}
+
+.mark {
+  position: relative;
+  margin-top: 40px;
+  width: 140px;
+  height: 90px;
+}
+
+.markLoop {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 56px;
+  height: 90px;
+  border: 10px solid var(--cyan);
+  border-radius: 999px;
+}
+
+.markArrow {
+  position: absolute;
+  left: 0;
+  top: 15px;
+  width: 0;
+  height: 0;
+  border-top: 30px solid transparent;
+  border-bottom: 30px solid transparent;
+  border-left: 72px solid var(--yellow);
+}
+
+.markArrow::before {
+  content: '';
+  position: absolute;
+  left: -72px;
+  top: -30px;
+  width: 10px;
+  height: 60px;
+  border-radius: 3px;
+  background: var(--teal);
+}
+
+.principles {
+  list-style: none;
+  display: grid;
+  gap: 40px;
+  border-top: 1.5px solid var(--ink);
+  padding-top: 32px;
+}
+
+.pNum {
+  display: inline-grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--ink);
+  color: var(--yellow);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.8125rem;
+}
+
+.pTitle {
+  margin-top: 20px;
+  font-size: clamp(1.4rem, 1.15rem + 0.7vw, 1.85rem);
+  letter-spacing: -0.035em;
+}
+
+.pBody {
+  margin-top: 10px;
+  color: var(--muted);
+  max-width: 32ch;
+}
+
+@media (min-width: 900px) {
+  .top {
+    grid-template-columns: 1.3fr 1fr;
+    align-items: end;
+  }
+  .principles {
+    grid-template-columns: repeat(3, 1fr);
+    gap: clamp(24px, 4vw, 64px);
+  }
+  .principles li + li {
+    border-left: 1px solid var(--rule);
+    padding-left: clamp(24px, 3vw, 48px);
+  }
+}

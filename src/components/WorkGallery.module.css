@@ -1,0 +1,203 @@
+.work {
+  padding-block: var(--section-y);
+}
+
+.head {
+  display: grid;
+  gap: 32px;
+  align-items: end;
+  margin-bottom: clamp(40px, 6vw, 80px);
+}
+
+.index {
+  margin-bottom: 24px;
+}
+
+.title {
+  font-size: var(--fs-h2);
+  letter-spacing: -0.045em;
+  max-width: 9ch;
+}
+
+.headSide {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.intro {
+  color: var(--muted);
+  max-width: 44ch;
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.filter {
+  min-height: 44px;
+  padding: 0 20px;
+  border-radius: 999px;
+  border: 0;
+  background: transparent;
+  box-shadow: inset 0 0 0 1.5px var(--rule);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.9375rem;
+  transition:
+    background-color var(--t-fast) var(--ease-out),
+    box-shadow var(--t-fast) var(--ease-out),
+    color var(--t-fast) var(--ease-out);
+}
+
+.filter:hover {
+  box-shadow: inset 0 0 0 1.5px var(--ink);
+}
+
+.filter[aria-pressed='true'] {
+  background: var(--ink);
+  color: var(--paper);
+  box-shadow: none;
+}
+
+.grid {
+  list-style: none;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: clamp(48px, 6vw, 88px) clamp(24px, 3vw, 48px);
+}
+
+.item {
+  min-width: 0;
+}
+
+.card {
+  position: relative;
+}
+
+.visual {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  border-radius: var(--radius-l);
+  overflow: hidden;
+  transition: transform 500ms var(--ease-out);
+}
+
+.card:hover .visual {
+  transform: scale(0.992);
+}
+
+.tag {
+  position: absolute;
+  left: 16px;
+  top: 16px;
+  z-index: 4;
+}
+
+.meta {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 18px;
+  align-items: start;
+  padding-top: 22px;
+  border-top: 1px solid transparent;
+}
+
+.num {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.8125rem;
+  color: var(--teal-ink);
+  padding-top: 5px;
+}
+
+.category {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+
+.cardTitle {
+  margin-top: 6px;
+  font-size: clamp(1.4rem, 1.1rem + 0.9vw, 2rem);
+  letter-spacing: -0.035em;
+}
+
+.summary {
+  margin-top: 10px;
+  color: var(--muted);
+  max-width: 48ch;
+}
+
+.open {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 0;
+  background: var(--ink);
+  color: var(--paper);
+  transition:
+    background-color var(--t-fast) var(--ease-out),
+    color var(--t-fast) var(--ease-out),
+    transform var(--t-med) var(--ease-out);
+}
+
+/* Whole card is clickable; the button stays the accessible control */
+.open::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  border-radius: var(--radius-l);
+}
+
+.open:focus-visible {
+  box-shadow: none;
+}
+
+.open:focus-visible::after {
+  box-shadow: 0 0 0 3px var(--paper), 0 0 0 5px var(--ink);
+}
+
+.card:hover .open {
+  background: var(--yellow);
+  color: var(--ink);
+  transform: rotate(45deg);
+}
+
+@media (min-width: 900px) {
+  .head {
+    grid-template-columns: 1.2fr 1fr;
+  }
+  .grid {
+    grid-template-columns: repeat(12, 1fr);
+  }
+  .feature {
+    grid-column: 1 / -1;
+  }
+  .feature .visual {
+    aspect-ratio: 16 / 7.4;
+  }
+  .feature .meta {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    max-width: 880px;
+  }
+  .wide {
+    grid-column: 1 / span 7;
+  }
+  .wide .visual {
+    aspect-ratio: 4 / 3.2;
+  }
+  .narrow {
+    grid-column: 8 / -1;
+    margin-top: clamp(80px, 12vw, 180px);
+  }
+  .narrow .visual {
+    aspect-ratio: 4 / 4.6;
+  }
+}

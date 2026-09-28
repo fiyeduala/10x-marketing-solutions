@@ -1,0 +1,28 @@
+.plate {
+  display: inline-flex;
+  align-items: center;
+  background: var(--white);
+  border-radius: 12px;
+  padding: 6px 10px;
+  box-shadow: 0 0 0 1px rgba(16, 23, 25, 0.04);
+}
+
+.plate img {
+  width: auto;
+  height: 100%;
+  aspect-ratio: 720 / 350;
+}
+
+.md {
+  height: 62px;
+}
+
+.sm {
+  height: 52px;
+}
+
+@media (max-width: 767px) {
+  .md {
+    height: 50px;
+  }
+}

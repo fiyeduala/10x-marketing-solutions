@@ -1,0 +1,124 @@
+.layout {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+.visual {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+}
+
+.body {
+  padding: clamp(24px, 4vw, 48px);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.topRow {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.close {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  flex: none;
+  border-radius: 50%;
+  border: 0;
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.category {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--teal-ink);
+}
+
+.title {
+  margin-top: 8px;
+  font-size: clamp(1.9rem, 1.3rem + 1.8vw, 2.8rem);
+  letter-spacing: -0.04em;
+}
+
+.brief {
+  margin-top: 18px;
+  color: var(--muted);
+  max-width: 52ch;
+}
+
+.columns {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 1px solid var(--rule);
+}
+
+.listTitle {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.list {
+  list-style: none;
+  margin-top: 12px;
+}
+
+.list li {
+  position: relative;
+  padding: 7px 0 7px 18px;
+  font-size: 0.9375rem;
+  line-height: 1.45;
+}
+
+.list li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 15px;
+  width: 7px;
+  height: 7px;
+  border-radius: 2px;
+  background: var(--teal);
+}
+
+.note {
+  margin: 24px 0;
+  padding: 14px 16px;
+  border-radius: var(--radius-s);
+  background: var(--paper-deep);
+  font-size: 0.875rem;
+  color: var(--muted);
+}
+
+@media (min-width: 560px) {
+  .columns {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (min-width: 900px) {
+  .layout {
+    grid-template-columns: 1.1fr 1fr;
+    min-height: min(680px, calc(100dvh - 32px));
+  }
+  .visual {
+    aspect-ratio: auto;
+    min-height: 100%;
+  }
+}
