@@ -1,0 +1,268 @@
+/* Cancels .p-main's top padding so the bar sits under the portal header. */
+.exam {
+  margin-top: calc(-1 * clamp(28px, 5vw, 64px));
+}
+
+.bar {
+  position: sticky;
+  top: 69px;
+  z-index: 15;
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.barInner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 60px;
+}
+
+.progress,
+.timer {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.timer {
+  align-items: flex-end;
+}
+
+.barLabel {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  opacity: 0.7;
+}
+
+.barValue {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.35rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.timerLow .barValue {
+  color: var(--yellow);
+}
+
+.track {
+  height: 3px;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.track span {
+  display: block;
+  height: 100%;
+  background: var(--yellow);
+  transition: width 0.3s ease;
+}
+
+.save {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--fs-small);
+}
+
+.save :global(.p-btn) {
+  color: var(--ink);
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.45);
+}
+
+.dotOk {
+  background: #5fd39a;
+}
+
+.dotBad {
+  background: #ff7a70;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 260px;
+  gap: clamp(20px, 4vw, 40px);
+  align-items: start;
+  padding-top: clamp(24px, 4vw, 40px);
+}
+
+.question {
+  background: var(--white);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-m);
+  padding: clamp(20px, 4vw, 36px);
+}
+
+.question fieldset {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+
+.legend {
+  display: block;
+  padding: 0;
+  width: 100%;
+}
+
+.qMeta {
+  display: block;
+  font-size: var(--fs-label);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--teal-ink);
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.prompt {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.1rem, 1rem + 0.5vw, 1.35rem);
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+  outline: none;
+}
+
+.options {
+  display: grid;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.option {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 14px 16px;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-s);
+  cursor: pointer;
+  line-height: 1.5;
+  transition:
+    border-color 0.15s,
+    background 0.15s;
+}
+
+.option:hover {
+  border-color: var(--ink);
+}
+
+.option input {
+  margin-top: 3px;
+  width: 18px;
+  height: 18px;
+  flex: none;
+  accent-color: var(--ink);
+}
+
+.option:has(input:focus-visible) {
+  outline: 3px solid var(--teal);
+  outline-offset: 2px;
+}
+
+.optionOn {
+  border-color: var(--ink);
+  background: var(--paper-deep);
+}
+
+.flag {
+  margin-top: 20px;
+  font-size: var(--fs-small);
+}
+
+.nav {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--rule);
+}
+
+.side {
+  position: sticky;
+  top: 150px;
+  display: grid;
+  gap: 14px;
+}
+
+.grid {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 6px;
+}
+
+.cell {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 8px;
+  border: 1px solid var(--rule);
+  background: var(--white);
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  position: relative;
+}
+
+.cellDone {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--paper);
+}
+
+.cellFlag::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--yellow);
+  box-shadow: 0 0 0 1px var(--ink);
+}
+
+.cell[aria-current='step'] {
+  outline: 3px solid var(--teal);
+  outline-offset: 1px;
+}
+
+@media (max-width: 860px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+  .side {
+    position: static;
+  }
+  .grid {
+    grid-template-columns: repeat(10, 1fr);
+  }
+}
+
+@media (max-width: 520px) {
+  .save {
+    font-size: 0.75rem;
+    line-height: 1.25;
+    max-width: 8.5em;
+    text-align: center;
+  }
+  .grid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+  .nav :global(.p-btn) {
+    flex: 1;
+  }
+}

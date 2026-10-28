@@ -2,7 +2,9 @@
 
 A single-page marketing site for 10X Marketing Solutions, built with React, TypeScript and Vite.
 
-It is **frontend only**. It has no backend, analytics, cookies or network requests, and it stores no personal data. The project enquiry panel builds a summary that visitors can copy, but it **does not send anything**.
+The marketing site itself is **static**. It has no analytics, cookies or network requests, and it stores no personal data. The project enquiry panel builds a summary that visitors can copy, but it **does not send anything**.
+
+The same project also hosts the **10X Customer Support Professional Assessment** at `/customer-support-assessment`: a candidate portal, server-side marking, Paystack payment and certificates, backed by a Vercel function and Supabase. See **[docs/ASSESSMENT.md](docs/ASSESSMENT.md)** for how it works, its configuration, tests, deployment and rollback.
 
 ## Getting started
 

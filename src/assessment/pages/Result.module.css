@@ -1,0 +1,74 @@
+.hero {
+  border-radius: var(--radius-m);
+  padding: clamp(24px, 5vw, 44px);
+  border: 1px solid var(--rule);
+}
+
+.pass {
+  background: var(--ok-bg);
+  border-color: color-mix(in srgb, var(--ok) 30%, transparent);
+}
+
+.fail {
+  background: var(--paper-deep);
+}
+
+.score {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin: 16px 0 8px;
+}
+
+.big {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(2.4rem, 2rem + 2vw, 3.4rem);
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.breakdown {
+  list-style: none;
+  display: grid;
+  gap: 12px;
+}
+
+.breakdown li {
+  background: var(--white);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-s);
+  padding: 14px 16px;
+  display: grid;
+  gap: 8px;
+}
+
+.bRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.bLabel {
+  font-weight: 500;
+}
+
+.bScore {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.meter {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--paper-deep);
+  overflow: hidden;
+}
+
+.meter span {
+  display: block;
+  height: 100%;
+  background: var(--teal);
+}

@@ -1,0 +1,9 @@
+# Keeps local-only files out of CLI deployments (Git deployments only see
+# committed files anyway).
+.env
+.env.*
+!.env.example
+node_modules
+dist
+*.tsbuildinfo
+tests/e2e/out

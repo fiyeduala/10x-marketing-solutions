@@ -1,0 +1,269 @@
+.book {
+  max-width: 820px;
+  line-height: 1.65;
+}
+
+.book p + p,
+.book h3 {
+  margin-top: 14px;
+}
+
+.book h3 + p,
+.book h3 + ul,
+.book h3 + ol {
+  margin-top: 8px;
+}
+
+.cover {
+  padding-bottom: 32px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.cover :global(.p-lead) {
+  margin-top: 14px;
+}
+
+.edition {
+  margin-top: 14px;
+}
+
+.map + p {
+  margin-top: 14px;
+}
+
+.toc {
+  margin: 32px 0 8px;
+  padding: 20px 24px;
+  border-radius: var(--radius-m);
+  background: var(--paper-deep);
+}
+
+.toc ol {
+  list-style: none;
+  columns: 2;
+  column-gap: 32px;
+  margin-top: 10px;
+}
+
+.toc li {
+  padding: 3px 0;
+  break-inside: avoid;
+}
+
+.toc a {
+  color: var(--ink);
+  text-decoration-color: var(--rule);
+  text-underline-offset: 3px;
+}
+
+.chapter {
+  margin-top: 56px;
+  scroll-margin-top: 90px;
+}
+
+.chapter > h2 {
+  margin-bottom: 14px;
+}
+
+.chapterNo {
+  font-size: var(--fs-label);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--teal-ink);
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.boxLabel {
+  font-size: var(--fs-label);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.key,
+.scenario,
+.revision {
+  margin-top: 22px;
+  border-radius: var(--radius-s);
+  padding: 18px 20px;
+  break-inside: avoid;
+}
+
+.key {
+  background: var(--white);
+  border: 1px solid var(--rule);
+  border-left: 4px solid var(--yellow);
+}
+
+.key ul {
+  padding-left: 20px;
+}
+
+.key li + li {
+  margin-top: 4px;
+}
+
+.scenario {
+  background: color-mix(in srgb, var(--teal) 9%, var(--white));
+  border: 1px solid color-mix(in srgb, var(--teal) 30%, transparent);
+}
+
+.situation {
+  font-weight: 600;
+}
+
+.approach {
+  margin-top: 10px;
+}
+
+.revision {
+  border: 1px dashed var(--rule);
+}
+
+.revision ol {
+  padding-left: 20px;
+}
+
+.revision li + li {
+  margin-top: 12px;
+}
+
+.revision details {
+  margin-top: 4px;
+}
+
+.revision summary {
+  cursor: pointer;
+  color: var(--teal-ink);
+  font-weight: 600;
+  font-size: var(--fs-small);
+}
+
+.revision details p {
+  margin-top: 4px;
+  color: var(--muted);
+}
+
+.map {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 18px;
+  font-size: var(--fs-small);
+  break-inside: avoid;
+}
+
+.map caption {
+  text-align: left;
+  font-weight: 700;
+  padding-bottom: 8px;
+}
+
+.map th,
+.map td {
+  text-align: left;
+  vertical-align: top;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.map th {
+  background: var(--paper-deep);
+}
+
+.glossary {
+  display: grid;
+  gap: 10px;
+}
+
+.glossary > div {
+  break-inside: avoid;
+}
+
+.glossary dt {
+  font-weight: 700;
+}
+
+.glossary dd {
+  margin: 2px 0 0;
+  color: var(--muted);
+}
+
+.checklist {
+  list-style: none;
+  margin-top: 16px;
+  display: grid;
+  gap: 8px;
+}
+
+.checklist li {
+  position: relative;
+  padding-left: 30px;
+  break-inside: avoid;
+}
+
+.checklist li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 4px;
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--ink);
+  border-radius: 4px;
+}
+
+@media (max-width: 600px) {
+  .toc ol {
+    columns: 1;
+  }
+}
+
+@media print {
+  :global(html),
+  :global(body),
+  :global(.p-main) {
+    background: #fff !important;
+  }
+  .glossary {
+    display: block;
+    columns: 2;
+    column-gap: 28px;
+  }
+  .glossary > div + div {
+    margin-top: 8px;
+  }
+  .book {
+    max-width: none;
+    padding: 0;
+    font-size: 10.5pt;
+  }
+  .chapter {
+    margin-top: 0;
+    break-before: page;
+  }
+  #how-to-use,
+  .toc {
+    break-before: auto;
+  }
+  .cover {
+    padding-top: 30mm;
+  }
+  .toc {
+    background: none;
+    border: 1px solid var(--rule);
+  }
+  .toc a {
+    text-decoration: none;
+  }
+  .revision details > summary {
+    list-style: none;
+  }
+  .revision details > summary::-webkit-details-marker {
+    display: none;
+  }
+  .revision details p {
+    display: block;
+  }
+}
