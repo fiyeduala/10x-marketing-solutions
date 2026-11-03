@@ -1,0 +1,19 @@
+{
+    "name": "10x-marketing/csp-app",
+    "description": "10X Customer Support Professional Assessment API (PHP / MySQL)",
+    "type": "project",
+    "license": "proprietary",
+    "require": {
+        "php": ">=8.1",
+        "ext-pdo_mysql": "*",
+        "ext-curl": "*",
+        "ext-json": "*",
+        "ext-mbstring": "*",
+        "ext-openssl": "*",
+        "tecnickcom/tcpdf": "^6.7"
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "platform": { "php": "8.1.0" }
+    }
+}

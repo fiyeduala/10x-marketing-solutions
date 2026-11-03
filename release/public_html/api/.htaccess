@@ -1,0 +1,17 @@
+# Assessment API. Every /api/v1/... request runs index.php; nothing else in
+# this folder is served. These are rewrite rules rather than <FilesMatch>
+# because Apache checks access before rewriting, so a FilesMatch deny would
+# also refuse /api/v1/... itself.
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # Apache hides the Authorization header from PHP unless it is passed on.
+  RewriteCond %{HTTP:Authorization} .
+  RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+  RewriteRule ^v1/?(.*)$ index.php?__path=$1 [QSA,L]
+  RewriteRule !^index\.php$ - [F]
+</IfModule>
+<IfModule !mod_rewrite.c>
+  Require all denied
+</IfModule>
