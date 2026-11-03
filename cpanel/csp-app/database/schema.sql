@@ -117,7 +117,7 @@ CREATE TABLE assessment_attempts (
   created_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
   updated_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
   -- Set only while the attempt is open: at most one open attempt per candidate.
-  open_key CHAR(36) CHARACTER SET ascii COLLATE ascii_bin AS (IF(status = 'in_progress', candidate_id, NULL)) STORED,
+  open_key CHAR(36) CHARACTER SET ascii COLLATE ascii_bin AS (IF(status = _ascii'in_progress' COLLATE ascii_bin, candidate_id, NULL)) STORED,
   PRIMARY KEY (id),
   UNIQUE KEY assessment_attempts_one_open_uq (open_key),
   KEY assessment_attempts_candidate_idx (candidate_id, started_at),
@@ -167,8 +167,8 @@ CREATE TABLE certificate_payments (
   created_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
   updated_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
   -- One successful payment and one open checkout per attempt.
-  success_key CHAR(36) CHARACTER SET ascii COLLATE ascii_bin AS (IF(status = 'success', attempt_id, NULL)) STORED,
-  open_key CHAR(36) CHARACTER SET ascii COLLATE ascii_bin AS (IF(status = 'initialized', attempt_id, NULL)) STORED,
+  success_key CHAR(36) CHARACTER SET ascii COLLATE ascii_bin AS (IF(status = _ascii'success' COLLATE ascii_bin, attempt_id, NULL)) STORED,
+  open_key CHAR(36) CHARACTER SET ascii COLLATE ascii_bin AS (IF(status = _ascii'initialized' COLLATE ascii_bin, attempt_id, NULL)) STORED,
   PRIMARY KEY (id),
   UNIQUE KEY certificate_payments_reference_uq (reference),
   UNIQUE KEY certificate_payments_transaction_uq (paystack_transaction_id),
