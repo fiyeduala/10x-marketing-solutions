@@ -42,7 +42,7 @@ function initialize_payment(Request $req): Response
             return json(['authorizationUrl' => $open['authorization_url'], 'reference' => $open['reference']]);
         }
         if ($result['outcome'] === 'pending') {
-            Db::run("UPDATE certificate_payments SET status = 'abandoned' WHERE id = ? AND status = 'initialized'", [$open['id']]);
+            Db::run("UPDATE certificate_payments SET status = 'abandoned', open_key = NULL WHERE id = ? AND status = 'initialized'", [$open['id']]);
         }
     }
 
@@ -50,8 +50,8 @@ function initialize_payment(Request $req): Response
     $paymentId = uuid4();
     try {
         Db::run(
-            'INSERT INTO certificate_payments (id, candidate_id, attempt_id, reference, amount_kobo, currency, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
-            [$paymentId, $candidate['id'], $attempt['id'], $reference, $cfg['certificateFeeKobo'], $cfg['currency'], db_time(now_ms())],
+            'INSERT INTO certificate_payments (id, candidate_id, attempt_id, reference, amount_kobo, currency, created_at, open_key) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+            [$paymentId, $candidate['id'], $attempt['id'], $reference, $cfg['certificateFeeKobo'], $cfg['currency'], db_time(now_ms()), $attempt['id']],
         );
     } catch (\PDOException $e) {
         if (is_duplicate($e)) throw new HttpError(409, 'payment_in_progress', 'A payment is already being set up. Please try again.');
@@ -71,7 +71,7 @@ function initialize_payment(Request $req): Response
         audit('payment.initialized', ['candidateId' => $candidate['id'], 'attemptId' => $attempt['id'], 'paymentId' => $paymentId, 'ipHash' => $req->ipHash()]);
         return json(['authorizationUrl' => $checkout['authorizationUrl'], 'reference' => $reference]);
     } catch (\Throwable $err) {
-        Db::run("UPDATE certificate_payments SET status = 'failed', gateway_response = 'initialize_failed' WHERE id = ?", [$paymentId]);
+        Db::run("UPDATE certificate_payments SET status = 'failed', gateway_response = 'initialize_failed', open_key = NULL WHERE id = ?", [$paymentId]);
         throw $err;
     }
 }

@@ -10,7 +10,10 @@
 -- be revoked once) are enforced by the PHP API with transactions, row locks
 -- and guarded UPDATEs. "One open attempt per candidate" and "one successful /
 -- one open payment per attempt" are enforced here by unique indexes on
--- generated columns, which are NULL (and so never collide) for other rows.
+-- the open_key / success_key columns. The API sets them while a row is open
+-- (or paid) and clears them to NULL otherwise; NULLs never collide. They are
+-- plain columns, not generated ones, because some MariaDB versions reject
+-- generated columns that compare text (error 1901).
 --
 -- All times are UTC. The API sets the session time zone to +00:00.
 --
@@ -116,8 +119,9 @@ CREATE TABLE assessment_attempts (
   ip_hash VARCHAR(64) CHARACTER SET ascii COLLATE ascii_bin NULL,
   created_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
   updated_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
-  -- Set only while the attempt is open: at most one open attempt per candidate.
-  open_key CHAR(36) CHARACTER SET ascii COLLATE ascii_bin AS (IF(status = _ascii'in_progress' COLLATE ascii_bin, candidate_id, NULL)) STORED,
+  -- candidate_id while the attempt is open, NULL once marked (set by the API):
+  -- at most one open attempt per candidate.
+  open_key CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NULL,
   PRIMARY KEY (id),
   UNIQUE KEY assessment_attempts_one_open_uq (open_key),
   KEY assessment_attempts_candidate_idx (candidate_id, started_at),
@@ -166,9 +170,11 @@ CREATE TABLE certificate_payments (
   verified_at DATETIME(3) NULL,
   created_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
   updated_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
-  -- One successful payment and one open checkout per attempt.
-  success_key CHAR(36) CHARACTER SET ascii COLLATE ascii_bin AS (IF(status = _ascii'success' COLLATE ascii_bin, attempt_id, NULL)) STORED,
-  open_key CHAR(36) CHARACTER SET ascii COLLATE ascii_bin AS (IF(status = _ascii'initialized' COLLATE ascii_bin, attempt_id, NULL)) STORED,
+  -- One successful payment and one open checkout per attempt (set by the API):
+  -- success_key = attempt_id once paid, open_key = attempt_id while
+  -- initialized; NULL otherwise.
+  success_key CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NULL,
+  open_key CHAR(36) CHARACTER SET ascii COLLATE ascii_bin NULL,
   PRIMARY KEY (id),
   UNIQUE KEY certificate_payments_reference_uq (reference),
   UNIQUE KEY certificate_payments_transaction_uq (paystack_transaction_id),
