@@ -3,7 +3,7 @@
         'name' => '10x-marketing/csp-app',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => '339895d20b7d28d9636583be965477ec43b8098d',
+        'reference' => '5683a1f870ede4f5459f53b601b11f69762888c0',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -13,7 +13,7 @@
         '10x-marketing/csp-app' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => '339895d20b7d28d9636583be965477ec43b8098d',
+            'reference' => '5683a1f870ede4f5459f53b601b11f69762888c0',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
