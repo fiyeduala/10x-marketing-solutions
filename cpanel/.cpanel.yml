@@ -4,14 +4,21 @@
 # does nothing on `main`. cPanel runs these tasks from the repository folder
 # when you press "Deploy HEAD Commit".
 #
+# The site goes into the document root of 10xmarketingsolutions.com.ng:
+# ~/10xmarketingsolutions.com.ng or ~/public_html/10xmarketingsolutions.com.ng
+# (addon domain), whichever exists. To use another folder, put its full path
+# in ~/.10x-docroot on the server. csp-app always goes to ~/csp-app, which is
+# outside every web root.
+#
 # Files are copied over the live ones and nothing is deleted, so
-# csp-app/.env (which the release never contains) is kept.
-# If the domain's document root is not ~/public_html (an addon domain, for
-# example), change the public_html destination and keep csp-app two levels
-# above public_html/api/index.php.
+# ~/csp-app/.env (which the release never contains) is kept. The deploy
+# refuses to run if the repository itself is inside a web root, because the
+# repository contains the answer key.
 deployment:
   tasks:
-    - export DEPLOYPATH=$HOME
-    - /bin/mkdir -p $DEPLOYPATH/public_html $DEPLOYPATH/csp-app
-    - /bin/cp -R public_html/. $DEPLOYPATH/public_html/
-    - /bin/cp -R csp-app/. $DEPLOYPATH/csp-app/
+    - export SITE=10xmarketingsolutions.com.ng
+    - 'if [ -s "$HOME/.10x-docroot" ]; then DOCROOT=$(head -n 1 "$HOME/.10x-docroot"); elif [ -d "$HOME/$SITE" ]; then DOCROOT="$HOME/$SITE"; elif [ -d "$HOME/public_html/$SITE" ]; then DOCROOT="$HOME/public_html/$SITE"; else echo "No document root found for $SITE" >&2; exit 1; fi; export DOCROOT'
+    - 'case "$PWD/" in "$DOCROOT"/*|"$HOME/public_html/"*) echo "Refusing to deploy: the repository is inside a web root ($PWD). Clone it into ~/repositories instead." >&2; exit 1;; esac'
+    - /bin/mkdir -p "$DOCROOT" "$HOME/csp-app"
+    - /bin/cp -R public_html/. "$DOCROOT/"
+    - /bin/cp -R csp-app/. "$HOME/csp-app/"

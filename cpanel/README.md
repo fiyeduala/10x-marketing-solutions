@@ -85,16 +85,25 @@ it.
 
 4. cPanel → **Git Version Control** → **Create**:
    - **Clone URL:** `git@github.com:fiyeduala/10x-marketing-solutions.git`
-   - **Repository Path:** `repositories/10x-marketing-solutions`. This must
-     **not** be inside `public_html`: the repository contains the answer key.
+   - **Repository Path:** `repositories/10x-marketing-solutions`. It must
+     **not** be the domain's folder or anywhere inside a web root (including
+     `public_html` and an addon domain's folder): the repository contains
+     the source and the answer key, and anything there can be downloaded.
+     The deploy refuses to run from such a folder.
    - **Repository Name:** anything, e.g. `10x site`.
 5. After it clones, open **Manage** → **Basic Information** and set
    **Checked-Out Branch** to `cpanel-release` → **Update**.
 6. **Pull or Deploy** tab → **Deploy HEAD Commit**. This runs `.cpanel.yml`,
-   which copies `public_html/` and `csp-app/` into your home directory.
+   which copies the website into the domain's document root and the
+   application into `~/csp-app`.
 
-If the domain's document root isn't `~/public_html`, edit the destination in
-`cpanel/.cpanel.yml` on `main` and push.
+The deploy finds the document root of `10xmarketingsolutions.com.ng` (an
+addon domain) at `~/10xmarketingsolutions.com.ng` or
+`~/public_html/10xmarketingsolutions.com.ng`. If cPanel → **Domains** shows
+a different document root, put its full path (for example
+`/home/<account>/mysite`) on the first line of a file named `.10x-docroot`
+in your home directory. `csp-app` always goes to `~/csp-app`, outside every
+web root, and the API finds it there.
 
 Then continue with step 4.
 
@@ -121,9 +130,9 @@ The release replaces `index.html`, `.htaccess` and `assets/`.
 
 `csp-app` must stay **outside** `public_html`: it holds the question bank
 with the answers and your `.env`. `public_html/api/index.php` loads it from
-`../../csp-app/`. If your domain's document root is somewhere else (an
-addon domain, for example), keep `csp-app` two levels above
-`api/index.php`, or edit the path in that file.
+the nearest `csp-app` folder above it. For an addon domain, upload the
+contents of `public_html/` into the domain's own folder instead, and keep
+`csp-app` directly in your home directory.
 
 File Manager hides dotfiles by default. Use **Settings → Show Hidden Files**
 to check that both `.htaccess` files arrived.
