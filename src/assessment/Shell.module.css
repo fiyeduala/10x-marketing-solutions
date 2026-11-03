@@ -25,10 +25,6 @@
 .plate {
   display: inline-flex;
   height: 44px;
-  padding: 4px 8px;
-  background: var(--white);
-  border-radius: 10px;
-  box-shadow: 0 0 0 1px rgba(16, 23, 25, 0.05);
 }
 
 .plate img {

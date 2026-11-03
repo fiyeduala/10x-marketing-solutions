@@ -25,7 +25,8 @@ npm run preview    # serve the production build locally
 ```
 src/
   content/site.ts        ← all editable copy, services, projects, contact details
-  assets/brand/logo.png  ← official logo (used as-is on a white plate)
+  assets/brand/logo.png  ← official logo, transparent background
+  assets/brand/logo-on-dark.png ← same, with white "Solutions" for dark backgrounds
   styles/theme.css       ← design tokens: colours, type scale, spacing, motion
   styles/global.css      ← reset and shared utilities (.btn, .container, …)
   components/            ← one component + CSS module per section
@@ -72,7 +73,7 @@ Don't add client names, results, metrics or testimonials unless they are real an
 
 ## Replacing assets
 
-- **Logo:** replace `src/assets/brand/logo.png` with the official file. Keep the white background, because the logo is placed on a white plate and must not be recoloured or distorted. Height is set in `src/components/Logo.module.css`, and the width follows the image's aspect ratio.
+- **Logo:** `src/assets/brand/logo.png` (transparent, for light backgrounds) and `logo-on-dark.png` (white "Solutions" lettering, used in the dark footer). Replace both together and keep the file names. Height is set in `src/components/Logo.module.css`, and the width follows the image's aspect ratio.
 - **Favicons:** `public/favicon-32.png`, `public/favicon.png` (64px) and `public/apple-touch-icon.png` (180px) are crops of the logo mark on white. Replace them if the logo changes.
 - **Hero sculpture:** `src/components/BrandSculpture.tsx` shows the supplied render `src/assets/sculpture/sculpture.webp` as-is. It is decorative, not the logo. It floats gently, tilts slightly with the pointer on mouse or trackpad devices, and has a pause control. It is static when reduced motion is enabled.
 - **Capability images:** `src/components/CapabilityDiagram.tsx` shows the supplied renders `src/assets/capability/marketing.webp` and `software.webp`, with both shown under "Both". They tilt slightly with the pointer and have no continuous motion.

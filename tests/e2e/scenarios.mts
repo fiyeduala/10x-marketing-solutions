@@ -1,22 +1,26 @@
 /**
- * End-to-end scenarios A–G against the real Supabase project, with Paystack
- * replaced by a local mock (no real payment is ever attempted: the API is
- * pointed at the mock with a throwaway key that Paystack would reject).
+ * End-to-end scenarios A–G against the PHP API (cpanel/csp-app) and a MySQL
+ * database, with Paystack replaced by a local mock (no real payment is ever
+ * attempted: the API is pointed at the mock with a throwaway key that
+ * Paystack would reject).
  *
  *   npm run build
  *   npx tsx tests/e2e/scenarios.mts
  *
- * Needs .env.local (SUPABASE_URL, SUPABASE_SECRET_KEY, APP_SECRET) and an
- * installed Chromium (see scripts/handbook-pdf.mjs). Every row the run creates
- * is deleted at the end. Screenshots go to E2E_OUT (default tests/e2e/out).
+ * Needs PHP 8.1+ on PATH, cpanel/csp-app/vendor (composer install), an
+ * installed Chromium (see scripts/handbook-pdf.mjs) and, in the environment,
+ * DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD and APP_SECRET for a
+ * development database with database/schema.sql imported — never the live
+ * one. Every candidate the run creates is deleted at the end. Screenshots go
+ * to E2E_OUT (default tests/e2e/out).
  */
-import { spawn, type ChildProcess } from 'node:child_process';
+import { execFileSync, spawn, type ChildProcess } from 'node:child_process';
 import { createHmac, randomBytes } from 'node:crypto';
 import { mkdirSync } from 'node:fs';
 import { createServer } from 'node:http';
 import os from 'node:os';
 import { join } from 'node:path';
-import { createClient } from '@supabase/supabase-js';
+import mysql from 'mysql2/promise';
 import { chromium, type Browser, type BrowserContext, type Page } from 'playwright-core';
 import { CATEGORIES, QUESTION_BANK } from '../../server/questionBank.js';
 
@@ -26,13 +30,27 @@ const RUN = randomBytes(3).toString('hex');
 const MOCK_PORT = 8799;
 const API_PORT = 8788;
 const WEB_PORT = 4174;
-const WEB = `http://127.0.0.1:${WEB_PORT}`;
-const API = `http://127.0.0.1:${API_PORT}/api/v1`;
-const MOCK_KEY = `sk_test_mock_${randomBytes(16).toString('hex')}`;
+// E2E_SITE runs against an already-running server instead (e.g. the cPanel
+// release under Apache), whose .env points PAYSTACK_API_BASE at this mock and
+// sets PAYSTACK_SECRET_KEY to E2E_MOCK_KEY.
+const SITE = process.env.E2E_SITE?.replace(/\/+$/, '');
+const WEB = SITE ?? `http://127.0.0.1:${WEB_PORT}`;
+const API = SITE ? `${SITE}/api/v1` : `http://127.0.0.1:${API_PORT}/api/v1`;
+const MOCK_KEY = process.env.E2E_MOCK_KEY ?? `sk_test_mock_${randomBytes(16).toString('hex')}`;
 const OUT = process.env.E2E_OUT ?? 'tests/e2e/out';
 mkdirSync(OUT, { recursive: true });
 
-const admin = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SECRET_KEY!, { auth: { persistSession: false } });
+const db = await mysql.createConnection({
+  host: process.env.DB_HOST ?? '127.0.0.1',
+  port: Number(process.env.DB_PORT ?? 3306),
+  database: process.env.DB_NAME,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+});
+async function rows<T = Record<string, unknown>>(sql: string, params: unknown[] = []): Promise<T[]> {
+  const [r] = await db.query(sql, params);
+  return r as T[];
+}
 const email = (tag: string) => `csp-e2e-${RUN}-${tag}@example.com`;
 const ipFor = (tag: string) => `198.51.100.${(parseInt(RUN.slice(0, 2), 16) + tag.charCodeAt(0)) % 250}`;
 
@@ -218,15 +236,14 @@ const exe =
 
 try {
   await new Promise<void>((r) => mock.listen(MOCK_PORT, '127.0.0.1', r));
-  start('npx', ['tsx', 'scripts/local-api.ts'], {
-    API_PORT: String(API_PORT),
+  if (!SITE) start(process.env.PHP_BIN ?? 'php', ['-d', 'variables_order=EGPCS', '-S', `127.0.0.1:${API_PORT}`, 'cpanel/dev-router.php'], {
     PAYSTACK_SECRET_KEY: MOCK_KEY,
     PAYSTACK_API_BASE: `http://127.0.0.1:${MOCK_PORT}`,
     APP_BASE_URL: WEB,
-    LOCAL_API_TRUST_TEST_IP: '1',
-    ENV_FILE: '.env.local',
+    APP_ENV: 'development',
+    TRUST_TEST_IP: '1',
   });
-  start('npx', ['vite', 'preview', '--host', '127.0.0.1', '--port', String(WEB_PORT), '--strictPort'], { API_PORT: String(API_PORT) });
+  if (!SITE) start('npx', ['vite', 'preview', '--host', '127.0.0.1', '--port', String(WEB_PORT), '--strictPort'], { API_PORT: String(API_PORT) });
   await waitFor(`${API}/config`);
   await waitFor(WEB);
   const cfg = (await api('config')).json;
@@ -297,10 +314,10 @@ try {
     check('E: repeat delivery recognised as duplicate', second.status === 200 && second.json?.duplicate === true, second.text);
     const bad = await api('paystack/webhook', { raw: body, headers: { 'x-paystack-signature': 'f'.repeat(128) } });
     check('E: wrong signature rejected (401)', bad.status === 401, bad.text);
-    const { data } = await admin.from('issued_certificates').select('id').eq('attempt_id', attemptA);
-    check('E: still exactly one certificate for the attempt', data?.length === 1, String(data?.length));
-    const { data: pays } = await admin.from('certificate_payments').select('status').eq('attempt_id', attemptA);
-    check('E: one successful payment row', pays?.filter((p) => p.status === 'success').length === 1, JSON.stringify(pays));
+    const data = await rows('SELECT id FROM issued_certificates WHERE attempt_id = ?', [attemptA]);
+    check('E: still exactly one certificate for the attempt', data.length === 1, String(data.length));
+    const pays = await rows<{ status: string }>('SELECT status FROM certificate_payments WHERE attempt_id = ?', [attemptA]);
+    check('E: one successful payment row', pays.filter((p) => p.status === 'success').length === 1, JSON.stringify(pays));
   });
 
   // ---------------------------------------------------------------- B
@@ -338,15 +355,15 @@ try {
     await page.getByRole('button', { name: /Pay .* with Paystack/ }).click();
     await page.getByRole('heading', { name: 'The payment was not completed' }).waitFor({ timeout: 20_000 });
     await page.screenshot({ path: `${OUT}/C-payment-failed.png` });
-    const { data: none } = await admin.from('issued_certificates').select('id').eq('attempt_id', attempt);
-    check('C: no certificate after failed payment', none?.length === 0);
+    const none = await rows('SELECT id FROM issued_certificates WHERE attempt_id = ?', [attempt]);
+    check('C: no certificate after failed payment', none.length === 0);
 
     plans.set(email('c'), 'success');
     await page.goto(`${WEB}/customer-support-assessment/result/${attempt}`);
     await page.getByRole('button', { name: /Pay .* with Paystack/ }).click();
     await page.getByRole('heading', { name: 'Payment confirmed' }).waitFor({ timeout: 20_000 });
-    const { data: one } = await admin.from('issued_certificates').select('id').eq('attempt_id', attempt);
-    check('C: retry payment issues one certificate', one?.length === 1);
+    const one = await rows('SELECT id FROM issued_certificates WHERE attempt_id = ?', [attempt]);
+    check('C: retry payment issues one certificate', one.length === 1);
     await ctx.close();
   });
 
@@ -365,10 +382,10 @@ try {
     await page.getByRole('button', { name: /Pay .* with Paystack/ }).click();
     await page.waitForURL(/payment-callback/);
     await page.getByRole('heading', { name: /not completed|not confirmed/ }).waitFor({ timeout: 20_000 });
-    const { data: certs } = await admin.from('issued_certificates').select('id').eq('attempt_id', attempt);
-    check('D: underpaid transaction issues no certificate', certs?.length === 0);
-    const { data: audits } = await admin.from('security_audit_events').select('event_type, details').eq('attempt_id', attempt);
-    check('D: amount mismatch audited', !!audits?.some((a) => JSON.stringify(a).includes('amount')), JSON.stringify(audits?.map((a) => a.event_type)));
+    const certs = await rows('SELECT id FROM issued_certificates WHERE attempt_id = ?', [attempt]);
+    check('D: underpaid transaction issues no certificate', certs.length === 0);
+    const audits = await rows<{ event_type: string }>('SELECT event_type, details FROM security_audit_events WHERE attempt_id = ?', [attempt]);
+    check('D: amount mismatch audited', audits.some((a) => JSON.stringify(a).includes('amount')), JSON.stringify(audits.map((a) => a.event_type)));
 
     // A forged webhook (attacker does not know the secret) is refused outright.
     const forged = JSON.stringify({ event: 'charge.success', data: { reference: [...txs.keys()].at(-1) } });
@@ -464,26 +481,78 @@ try {
     await ctx.close();
   });
 
+  // ---------------------------------------------------------------- H
+  await scenario('H: administrator sign-in, reports and sign-out', async () => {
+    // A throwaway admin for this run only; its hash comes from PHP's password_hash.
+    const adminEmail = `csp-e2e-admin-${RUN}@example.com`;
+    const password = randomBytes(18).toString('base64url');
+    const hash = execFileSync(process.env.PHP_BIN ?? 'php', ['-r', 'echo password_hash(stream_get_contents(STDIN), PASSWORD_DEFAULT);'], { input: password }).toString();
+    await rows('INSERT INTO admin_users (email, password_hash, password_changed_at) VALUES (?, ?, UTC_TIMESTAMP(3))', [adminEmail, hash]);
+
+    const wrong = await api('admin/login', { body: { email: adminEmail, password: `${password}x` }, ip: ipFor('h') });
+    check('H: wrong password → 401 login_failed', wrong.status === 401 && wrong.json?.error?.code === 'login_failed', wrong.text);
+    const unknown = await api('admin/login', { body: { email: email('nobody'), password }, ip: ipFor('h') });
+    check('H: unknown email gets the same 401', unknown.status === 401 && unknown.json?.error?.code === 'login_failed', unknown.text);
+    const login = await api('admin/login', { body: { email: adminEmail.toUpperCase(), password }, ip: ipFor('h') });
+    const token = login.json?.token as string | undefined;
+    check('H: correct password → session token', login.status === 200 && !!token, String(login.status));
+
+    const me = await api('admin/me', { token });
+    check('H: admin/me returns the admin', me.json?.email === adminEmail, me.text);
+    const summary = await api('admin/summary', { token });
+    check('H: summary counts the run’s certificates', summary.status === 200 && summary.json?.summary?.certificates_issued >= 2, summary.text.slice(0, 300));
+    const list = await api(`admin/attempts?q=${encodeURIComponent(`csp-e2e-${RUN}-a`)}`, { token });
+    check('H: attempt search finds candidate A', list.json?.rows?.some((r: { attemptId?: string; id?: string }) => (r.attemptId ?? r.id) === attemptA), list.text.slice(0, 300));
+    const csv = await api('admin/export.csv', { token });
+    check('H: CSV export has a header and the run’s rows', csv.status === 200 && csv.text.includes(email('a')), csv.text.slice(0, 200));
+    const audit = await api('admin/audit', { token });
+    check('H: audit log records the admin sign-in', JSON.stringify(audit.json).includes('admin.login'), audit.text.slice(0, 200));
+
+    const out = await api('admin/session', { method: 'DELETE', token });
+    check('H: sign-out accepted', out.status === 200 || out.status === 204, String(out.status));
+    const after = await api('admin/me', { token });
+    check('H: token refused after sign-out', after.status === 401, String(after.status));
+
+    // The real page, end to end.
+    const page = await browser!.newPage();
+    await page.goto(`${WEB}/customer-support-assessment/admin`);
+    await page.getByLabel('Email').fill(adminEmail);
+    await page.getByLabel('Password').fill(password);
+    await page.getByRole('button', { name: 'Sign in' }).click();
+    await page.getByText('Gross payments received').waitFor({ timeout: 15_000 });
+    check('H: admin page signs in and shows the summary', true);
+    await page.screenshot({ path: `${OUT}/H-admin.png`, fullPage: true });
+    await page.getByRole('button', { name: 'Sign out' }).click();
+    await page.getByRole('button', { name: 'Sign in' }).waitFor();
+    const live = await rows('SELECT id FROM admin_sessions WHERE email = ? AND revoked_at IS NULL AND expires_at > UTC_TIMESTAMP(3)', [adminEmail]);
+    check('H: page sign-out revoked the session server-side', live.length === 0, String(live.length));
+    await page.close();
+  });
+
   check('mock Paystack: every API call carried the test key', authFailures === 0, String(authFailures));
 } finally {
   await browser?.close().catch(() => {});
   // ---------------------------------------------------------------- cleanup
-  const { data: cands } = await admin.from('assessment_candidates').select('id').like('normalised_email', 'csp-e2e-%');
-  const ids = (cands ?? []).map((c) => c.id);
+  // Attempts, responses and access tokens cascade from the candidate rows.
+  const ids = (await rows<{ id: string }>("SELECT id FROM assessment_candidates WHERE normalised_email LIKE 'csp-e2e-%'")).map((c) => c.id);
   if (ids.length) {
-    const { data: pays } = await admin.from('certificate_payments').select('reference').in('candidate_id', ids);
-    const refs = (pays ?? []).map((p) => p.reference);
-    const steps = [
-      admin.from('security_audit_events').delete().in('candidate_id', ids),
-      admin.from('issued_certificates').delete().in('candidate_id', ids),
-    ];
-    for (const s of steps) await s;
-    if (refs.length) await admin.from('paystack_webhook_events').delete().in('reference', refs);
-    await admin.from('certificate_payments').delete().in('candidate_id', ids);
-    const { error } = await admin.from('assessment_candidates').delete().in('id', ids);
-    const { data: left } = await admin.from('assessment_candidates').select('id').like('normalised_email', 'csp-e2e-%');
-    console.log(`\ncleanup: removed ${ids.length} test candidates${error ? ` (error: ${error.message})` : ''}; remaining ${left?.length ?? '?'}`);
+    let error = '';
+    try {
+      const refs = (await rows<{ reference: string }>('SELECT reference FROM certificate_payments WHERE candidate_id IN (?)', [ids])).map((p) => p.reference);
+      await rows('DELETE FROM security_audit_events WHERE candidate_id IN (?)', [ids]);
+      await rows('DELETE FROM issued_certificates WHERE candidate_id IN (?)', [ids]);
+      if (refs.length) await rows('DELETE FROM paystack_webhook_events WHERE reference IN (?)', [refs]);
+      await rows('DELETE FROM certificate_payments WHERE candidate_id IN (?)', [ids]);
+      await rows('DELETE FROM assessment_candidates WHERE id IN (?)', [ids]);
+    } catch (e) {
+      error = (e as Error).message;
+    }
+    const left = await rows("SELECT id FROM assessment_candidates WHERE normalised_email LIKE 'csp-e2e-%'");
+    console.log(`\ncleanup: removed ${ids.length} test candidates${error ? ` (error: ${error})` : ''}; remaining ${left.length}`);
   }
+  await rows("DELETE FROM security_audit_events WHERE actor LIKE 'admin:csp-e2e-admin-%'");
+  await rows("DELETE FROM admin_users WHERE email LIKE 'csp-e2e-admin-%'"); // sessions cascade
+  await db.end();
   for (const c of children) {
     if (process.platform === 'win32' && c.pid) spawn('taskkill', ['/pid', String(c.pid), '/t', '/f'], { stdio: 'ignore' });
     else c.kill();

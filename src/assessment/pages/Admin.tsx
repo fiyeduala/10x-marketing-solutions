@@ -5,13 +5,12 @@ import { ConfirmDialog, ErrorNotice, Loading, useResource } from '../ui';
 import styles from './Admin.module.css';
 
 /**
- * Administration. Sign-in is Supabase Auth (email + password); the server
- * then checks the token and the admin_users allow-list on every request.
- * The page itself holds nothing sensitive until the server says yes.
+ * Administration. Sign-in is email + password against the API, which checks
+ * the admin_users allow-list and issues a short-lived session token that it
+ * re-checks on every request. The page itself holds nothing sensitive until
+ * the server says yes.
  */
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string | undefined;
-const PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string | undefined;
 const ADMIN_KEY = 'csp.admin';
 
 const adminSession = {
@@ -44,12 +43,7 @@ export default function Admin() {
     const t = token;
     adminSession.clear();
     setToken(null);
-    if (t && SUPABASE_URL && PUBLISHABLE_KEY) {
-      await fetch(`${SUPABASE_URL}/auth/v1/logout`, {
-        method: 'POST',
-        headers: { apikey: PUBLISHABLE_KEY, Authorization: `Bearer ${t}` },
-      }).catch(() => undefined);
-    }
+    if (t) await api('admin/session', { method: 'DELETE', token: t }).catch(() => undefined);
   };
   if (!token) return <SignIn onSignedIn={(t) => (adminSession.set(t), setToken(t))} />;
   return <Console token={token} onSignOut={signOut} />;
@@ -64,26 +58,13 @@ function SignIn({ onSignedIn }: { onSignedIn: (token: string) => void }) {
   async function submit(e: FormEvent) {
     e.preventDefault();
     setError(null);
-    if (!SUPABASE_URL || !PUBLISHABLE_KEY) {
-      setError('Admin sign-in is not configured on this deployment.');
-      return;
-    }
     setBusy(true);
     try {
-      const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
-        method: 'POST',
-        headers: { apikey: PUBLISHABLE_KEY, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-      if (!res.ok) throw new Error('Email or password not recognised.');
-      const body = (await res.json()) as { access_token?: string };
-      if (!body.access_token) throw new Error('Sign-in failed.');
-      // Confirm the server accepts this account before showing the console.
-      await api('admin/me', { token: body.access_token });
+      const { token } = await api<{ token: string }>('admin/login', { method: 'POST', body: { email, password } });
       setPassword('');
-      onSignedIn(body.access_token);
+      onSignedIn(token);
     } catch (err) {
-      setError(err instanceof ApiError && err.status === 403 ? 'This account is not authorised.' : (err as Error).message);
+      setError(err instanceof ApiError && err.status === 401 ? 'Email or password not recognised.' : (err as Error).message);
     } finally {
       setBusy(false);
     }

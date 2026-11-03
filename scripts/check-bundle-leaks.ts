@@ -1,13 +1,13 @@
 /**
  * Fails if any part of the answer key, or the question text, appears in the
- * built public files (dist/). Run after `vite build`:
+ * built public files (dist/, or the folder given). Run after `vite build`:
  *   npx tsx scripts/check-bundle-leaks.ts
  */
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { QUESTION_BANK } from '../server/questionBank.js';
 
-const DIST = 'dist';
+const DIST = process.argv[2] ?? 'dist';
 
 function files(dir: string): string[] {
   return readdirSync(dir).flatMap((name) => {
@@ -36,7 +36,7 @@ const problems: string[] = [];
 const all = files(DIST);
 for (const f of all) {
   if (f.endsWith('.map')) problems.push(`source map published: ${f}`);
-  if (!/\.(js|css|html|json|txt|svg|xml)$/.test(f)) continue;
+  if (!/(\.(js|css|html|json|txt|svg|xml|php)|\.htaccess)$/.test(f)) continue;
   const raw = readFileSync(f, 'utf8');
   const text = norm(raw);
   for (const [label, n] of checked) if (text.includes(n)) problems.push(`${f}: contains ${label}`);

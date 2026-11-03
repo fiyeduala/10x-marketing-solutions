@@ -1,0 +1,38 @@
+# 10X Marketing Solutions: Apache rules for cPanel hosting.
+# Mirrors the rewrites and headers in vercel.json.
+
+Options -Indexes
+DirectoryIndex index.html
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # The assessment API (/api/v1/...) is routed by api/.htaccess.
+
+  # Assessment portal (client-side routes)
+  RewriteRule ^customer-support-assessment/?$ assessment.html [L]
+  RewriteRule ^customer-support-assessment/.+$ assessment.html [L]
+  RewriteRule ^verify-certificate/[^/]+/?$ assessment.html [L]
+</IfModule>
+
+<IfModule mod_headers.c>
+  <If "%{REQUEST_URI} =~ m#^/(customer-support-assessment|verify-certificate|assessment\.html)#">
+    Header always set X-Robots-Tag "noindex, nofollow"
+    Header always set Referrer-Policy "no-referrer"
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "DENY"
+    Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+  </If>
+  <If "%{REQUEST_URI} =~ m#^/handbook/#">
+    Header always set X-Robots-Tag "noindex"
+  </If>
+  # Built assets have content hashes in their names, so they can be cached.
+  <If "%{REQUEST_URI} =~ m#^/assets/#">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </If>
+</IfModule>
+
+# Nothing secret belongs in public_html, but refuse these just in case.
+<FilesMatch "^(\.ht.*|\.env.*|\.git.*|composer\.(json|lock)|.*\.(sql|log|md))$">
+  Require all denied
+</FilesMatch>

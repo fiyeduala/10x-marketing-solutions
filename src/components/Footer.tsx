@@ -8,7 +8,7 @@ export function Footer() {
     <footer className={styles.footer}>
       <div className={`container ${styles.inner}`}>
         <div className={styles.brand}>
-          <Logo size="sm" />
+          <Logo size="sm" tone="dark" />
           <p className={styles.statement}>{site.positioning}</p>
         </div>
         <nav aria-label="Footer">
