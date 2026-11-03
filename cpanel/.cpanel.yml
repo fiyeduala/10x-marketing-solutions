@@ -1,0 +1,17 @@
+---
+# cPanel Git Version Control deployment. The GitHub workflow copies this file
+# to the root of the `cpanel-release` branch, which holds the built site; it
+# does nothing on `main`. cPanel runs these tasks from the repository folder
+# when you press "Deploy HEAD Commit".
+#
+# Files are copied over the live ones and nothing is deleted, so
+# csp-app/.env (which the release never contains) is kept.
+# If the domain's document root is not ~/public_html (an addon domain, for
+# example), change the public_html destination and keep csp-app two levels
+# above public_html/api/index.php.
+deployment:
+  tasks:
+    - export DEPLOYPATH=$HOME
+    - /bin/mkdir -p $DEPLOYPATH/public_html $DEPLOYPATH/csp-app
+    - /bin/cp -R public_html/. $DEPLOYPATH/public_html/
+    - /bin/cp -R csp-app/. $DEPLOYPATH/csp-app/

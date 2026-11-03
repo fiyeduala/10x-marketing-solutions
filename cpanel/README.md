@@ -21,9 +21,18 @@ attempts, marking, payments and certificates, and the same API paths
   Paystack and the sign-in tokens need HTTPS.
 - A MySQL 5.7+ / 8.x or MariaDB 10.4+ database (tested on MariaDB 10.4).
 
-## 1. Build the release (on your computer)
+## 1. Build the release
 
-You need Node.js, PHP 8.1+ and Composer installed locally.
+There are two ways to get the site onto the server:
+
+- **Git (recommended):** every push to `main` runs the GitHub workflow
+  `.github/workflows/cpanel-release.yml`. It checks and builds the site and
+  commits the result to the `cpanel-release` branch, which cPanel pulls. You
+  don't need to build anything yourself; skip to step 2, then follow
+  **3a**.
+- **Zip upload:** build on your computer as below, then follow **3b**.
+
+To build on your computer, you need Node.js, PHP 8.1+ and Composer.
 
 ```
 npm install
@@ -56,7 +65,40 @@ would end up in `public_html`.
 The import runs once on an empty database. Don't import it again over a live
 database.
 
-## 3. Upload the files
+## 3a. Deploy with Git (cPanel Git Version Control)
+
+The GitHub repository is private, so cPanel needs a read-only key to clone
+it.
+
+1. cPanel → **SSH Access** → **Manage SSH Keys** → **Generate a New Key**.
+   Leave the passphrase empty (cPanel's Git tool can't enter one), then
+   **View/Download** the public key and copy it.
+2. GitHub → the repository → **Settings** → **Deploy keys** → **Add deploy
+   key**. Paste the public key, and leave **Allow write access** unticked.
+3. If you gave the key a name other than `id_rsa`, create `~/.ssh/config`
+   in File Manager with:
+
+   ```
+   Host github.com
+     IdentityFile ~/.ssh/<key name>
+   ```
+
+4. cPanel → **Git Version Control** → **Create**:
+   - **Clone URL:** `git@github.com:fiyeduala/10x-marketing-solutions.git`
+   - **Repository Path:** `repositories/10x-marketing-solutions`. This must
+     **not** be inside `public_html`: the repository contains the answer key.
+   - **Repository Name:** anything, e.g. `10x site`.
+5. After it clones, open **Manage** → **Basic Information** and set
+   **Checked-Out Branch** to `cpanel-release` → **Update**.
+6. **Pull or Deploy** tab → **Deploy HEAD Commit**. This runs `.cpanel.yml`,
+   which copies `public_html/` and `csp-app/` into your home directory.
+
+If the domain's document root isn't `~/public_html`, edit the destination in
+`cpanel/.cpanel.yml` on `main` and push.
+
+Then continue with step 4.
+
+## 3b. Upload the files
 
 Upload and extract `10x-cpanel-release.zip` into your home directory
 (cPanel → **File Manager**, one level *above* `public_html`). You should end
@@ -160,9 +202,21 @@ the Paystack webhook or the return from checkout.
 
 ## Updating the site later
 
-Run `npm run build:cpanel` again and upload `public_html/` and `csp-app/`
-over the old copies. **Keep `csp-app/.env`**, because the release never
-contains one. Database changes, if a future update needs them, come as a
+Most of the site's wording, services and projects live in
+`src/content/site.ts`; project images are in `src/assets/`.
+
+**With Git:** commit the change and push to `main`. Wait for the
+**cPanel release** workflow to go green on GitHub (**Actions** tab, about
+two minutes). If the checks or build fail, nothing is published. Then
+cPanel → **Git Version Control** → **Manage** → **Pull or Deploy** →
+**Update from Remote**, then **Deploy HEAD Commit**.
+
+**With a zip:** run `npm run build:cpanel` again and upload `public_html/`
+and `csp-app/` over the old copies.
+
+Either way `csp-app/.env` is kept, because the release never contains one.
+Old files are not deleted, so earlier versions of the hashed files in
+`public_html/assets/` stay behind; they are harmless. Database changes, if a future update needs them, come as a
 separate SQL file with its own instructions.
 
 When you change questions in `server/questionBank.ts`, run
