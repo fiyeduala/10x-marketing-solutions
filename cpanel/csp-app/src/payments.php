@@ -111,7 +111,7 @@ function apply_verified_transaction(array $payment, ?array $tx, string $actor): 
 
     if ($tx['status'] !== 'success') {
         if ($tx['status'] === 'failed' || $tx['status'] === 'reversed') {
-            Db::run("UPDATE certificate_payments SET status = 'failed', gateway_response = ? WHERE id = ? AND status = 'initialized'", [mb_substr($tx['gatewayResponse'] ?? $tx['status'], 0, 200), $payment['id']]);
+            Db::run("UPDATE certificate_payments SET status = 'failed', gateway_response = ?, open_key = NULL WHERE id = ? AND status = 'initialized'", [mb_substr($tx['gatewayResponse'] ?? $tx['status'], 0, 200), $payment['id']]);
             return ['outcome' => 'failed', 'certificateNumber' => null];
         }
         // 'abandoned', 'ongoing', 'pending', 'processing', 'queued': not final yet.
@@ -169,7 +169,7 @@ function record_payment_and_issue(string $paymentId, array $tx, string $certific
         // on record for refund follow-up, do not issue a second certificate.
         if (Db::one("SELECT 1 AS x FROM certificate_payments WHERE attempt_id = ? AND status = 'success'", [$attempt['id']])) {
             Db::run(
-                "UPDATE certificate_payments SET status = 'duplicate_success', paystack_transaction_id = ?, paid_at = ?, verified_at = ?, channel = ?, gateway_response = ? WHERE id = ?",
+                "UPDATE certificate_payments SET status = 'duplicate_success', open_key = NULL, paystack_transaction_id = ?, paid_at = ?, verified_at = ?, channel = ?, gateway_response = ? WHERE id = ?",
                 [$tx['id'], $paidAt, $now, $channel, $gateway, $paymentId],
             );
             audit('payment.duplicate_success', ['actor' => $actor, 'candidateId' => $payment['candidate_id'], 'attemptId' => $attempt['id'], 'paymentId' => $paymentId, 'details' => ['action' => 'review_for_refund']]);
@@ -178,7 +178,7 @@ function record_payment_and_issue(string $paymentId, array $tx, string $certific
         }
 
         Db::run(
-            "UPDATE certificate_payments SET status = 'success', paystack_transaction_id = ?, paid_at = ?, verified_at = ?, channel = ?, gateway_response = ? WHERE id = ?",
+            "UPDATE certificate_payments SET status = 'success', success_key = attempt_id, open_key = NULL, paystack_transaction_id = ?, paid_at = ?, verified_at = ?, channel = ?, gateway_response = ? WHERE id = ?",
             [$tx['id'], $paidAt, $now, $channel, $gateway, $paymentId],
         );
         $candidate = Db::one('SELECT full_name FROM assessment_candidates WHERE id = ?', [$attempt['candidate_id']]);

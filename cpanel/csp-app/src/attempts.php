@@ -56,7 +56,7 @@ function finalise(array $attempt, array $answers, bool $timedOut, string $actor)
             Db::run("INSERT INTO assessment_responses (attempt_id, question_id, selected_option, is_correct, submitted_at) VALUES {$placeholders}", $params);
         }
         Db::run(
-            "UPDATE assessment_attempts SET status = ?, submitted_at = ?, timed_out = ?, correct_answers = ?, score_percentage = ?, passed = ?, category_breakdown = ?
+            "UPDATE assessment_attempts SET status = ?, submitted_at = ?, timed_out = ?, correct_answers = ?, score_percentage = ?, passed = ?, category_breakdown = ?, open_key = NULL
               WHERE id = ? AND status = 'in_progress'",
             [$passed ? 'passed' : 'failed', $now, $timedOut ? 1 : 0, $correct, round($correct * 100 / $total, 2), $passed ? 1 : 0, json_map($mark['breakdown']), $attempt['id']],
         );

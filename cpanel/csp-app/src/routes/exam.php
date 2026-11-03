@@ -54,8 +54,8 @@ function start_attempt(Request $req): Response
     $id = uuid4();
     try {
         Db::run(
-            'INSERT INTO assessment_attempts (id, candidate_id, started_at, expires_at, total_questions, pass_mark, question_bank_version, questions, draft_answers, ip_hash) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-            [$id, $candidate['id'], db_time($started), db_time($started + $cfg['durationMinutes'] * 60_000), $cfg['questionsPerAttempt'], (string) $cfg['passMarkPercent'], Bank::version(), json_encode(select_questions($cfg['questionsPerAttempt']), JSON_THROW_ON_ERROR), json_map([]), $req->ipHash()],
+            'INSERT INTO assessment_attempts (id, candidate_id, started_at, expires_at, total_questions, pass_mark, question_bank_version, questions, draft_answers, ip_hash, open_key) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            [$id, $candidate['id'], db_time($started), db_time($started + $cfg['durationMinutes'] * 60_000), $cfg['questionsPerAttempt'], (string) $cfg['passMarkPercent'], Bank::version(), json_encode(select_questions($cfg['questionsPerAttempt']), JSON_THROW_ON_ERROR), json_map([]), $req->ipHash(), $candidate['id']],
         );
     } catch (\PDOException $e) {
         if (!is_duplicate($e, 'assessment_attempts_one_open_uq')) throw $e;
