@@ -1,8 +1,8 @@
 ---
-# cPanel Git Version Control deployment. The GitHub workflow copies this file
-# to the root of the `cpanel-release` branch, which holds the built site; it
-# does nothing on `main`. cPanel runs these tasks from the repository folder
-# when you press "Deploy HEAD Commit".
+# cPanel Git Version Control deployment. cPanel runs these tasks from the
+# repository folder when you press "Deploy HEAD Commit". They copy the built
+# site in release/ (committed to main by .github/workflows/cpanel-release.yml)
+# into place.
 #
 # The site goes into the document root of 10xmarketingsolutions.com.ng:
 # ~/10xmarketingsolutions.com.ng or ~/public_html/10xmarketingsolutions.com.ng
@@ -19,6 +19,7 @@ deployment:
     - export SITE=10xmarketingsolutions.com.ng
     - 'if [ -s "$HOME/.10x-docroot" ]; then DOCROOT=$(head -n 1 "$HOME/.10x-docroot"); elif [ -d "$HOME/$SITE" ]; then DOCROOT="$HOME/$SITE"; elif [ -d "$HOME/public_html/$SITE" ]; then DOCROOT="$HOME/public_html/$SITE"; else echo "No document root found for $SITE" >&2; exit 1; fi; export DOCROOT'
     - 'case "$PWD/" in "$DOCROOT"/*|"$HOME/public_html/"*) echo "Refusing to deploy: the repository is inside a web root ($PWD). Clone it into ~/repositories instead." >&2; exit 1;; esac'
+    - 'test -f release/public_html/index.html || { echo "release/ is missing: wait for the cPanel release workflow on GitHub, then Update from Remote." >&2; exit 1; }'
     - /bin/mkdir -p "$DOCROOT" "$HOME/csp-app"
-    - /bin/cp -R public_html/. "$DOCROOT/"
-    - /bin/cp -R csp-app/. "$HOME/csp-app/"
+    - /bin/cp -R release/public_html/. "$DOCROOT/"
+    - /bin/cp -R release/csp-app/. "$HOME/csp-app/"

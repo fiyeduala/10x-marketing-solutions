@@ -1,0 +1,2 @@
+# release/ is the built site committed by the cPanel release workflow.
+release/** linguist-generated=true -diff

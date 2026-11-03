@@ -27,8 +27,8 @@ There are two ways to get the site onto the server:
 
 - **Git (recommended):** every push to `main` runs the GitHub workflow
   `.github/workflows/cpanel-release.yml`. It checks and builds the site and
-  commits the result to the `cpanel-release` branch, which cPanel pulls. You
-  don't need to build anything yourself; skip to step 2, then follow
+  commits the result to the `release/` folder on `main`, which cPanel pulls.
+  You don't need to build anything yourself; skip to step 2, then follow
   **3a**.
 - **Zip upload:** build on your computer as below, then follow **3b**.
 
@@ -91,11 +91,10 @@ it.
      the source and the answer key, and anything there can be downloaded.
      The deploy refuses to run from such a folder.
    - **Repository Name:** anything, e.g. `10x site`.
-5. After it clones, open **Manage** → **Basic Information** and set
-   **Checked-Out Branch** to `cpanel-release` → **Update**.
-6. **Pull or Deploy** tab → **Deploy HEAD Commit**. This runs `.cpanel.yml`,
-   which copies the website into the domain's document root and the
-   application into `~/csp-app`.
+5. Leave the branch as `main`. After it clones, open **Manage** →
+   **Pull or Deploy** → **Deploy HEAD Commit**. This runs `.cpanel.yml`,
+   which copies the built site in `release/` into the domain's document
+   root and the application into `~/csp-app`.
 
 The deploy finds the document root of `10xmarketingsolutions.com.ng` (an
 addon domain) at `~/10xmarketingsolutions.com.ng` or
@@ -219,6 +218,9 @@ Most of the site's wording, services and projects live in
 two minutes). If the checks or build fail, nothing is published. Then
 cPanel → **Git Version Control** → **Manage** → **Pull or Deploy** →
 **Update from Remote**, then **Deploy HEAD Commit**.
+
+The workflow adds its own "Build cPanel release" commit to `main`, so run
+`git pull` before you start your next change.
 
 **With a zip:** run `npm run build:cpanel` again and upload `public_html/`
 and `csp-app/` over the old copies.
